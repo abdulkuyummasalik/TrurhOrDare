@@ -10,6 +10,11 @@ function App() {
   const [playerName, setPlayerName] = useState("");
   const [spinType, setSpinType] = useState(""); // TRUTH or DARE
   const [currentQuestion, setCurrentQuestion] = useState(""); // Question from Spin2
+  const [isSubmitting, setIsSubmitting] = useState(false); // 🆕 Loading state
+
+  // 🔥 GANTI INI DENGAN WEB APP URL ANDA DARI GOOGLE APPS SCRIPT
+  const GOOGLE_SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbzd-3l8ymcvjOjhD87XGWe3LJDNNE1PI4PYM6LiGuMdodruGaai3-bksDQOwA_TIK0E/exec";
 
   // Load dari localStorage saat refresh (optional)
   useEffect(() => {
@@ -52,7 +57,59 @@ function App() {
     setCurrentPage("action");
   };
 
-  const handleActionComplete = () => {
+  // 🚀 FUNGSI: Kirim data ke Google Sheets (silent)
+  const sendToGoogleSheets = async (data) => {
+    try {
+      const formData = new FormData();
+      formData.append("playerName", data.playerName);
+      formData.append("spinType", data.spinType);
+      formData.append("currentQuestion", data.currentQuestion);
+      formData.append("status", data.status);
+
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      console.log("✅ Data tersimpan", result); // Hanya di console, user ga tau
+      return true;
+    } catch (error) {
+      console.error("❌ Gagal menyimpan:", error);
+      // Tetap return true biar user ga tahu ada error
+      return true;
+    }
+  };
+
+  // 🆕 DIPINDAH: Handle Complete dengan submit data
+  const handleActionComplete = async () => {
+    // 1️⃣ Tampilkan loading
+    setIsSubmitting(true);
+
+    // 2️⃣ Siapkan data
+    const gameData = {
+      playerName,
+      spinType,
+      currentQuestion,
+      status: "COMPLETED",
+    };
+
+    // 3️⃣ Console log untuk tracking
+    console.log("=== GAME DATA ===");
+    console.log({
+      ...gameData,
+      timestamp: new Date().toISOString(),
+    });
+    console.log("=================");
+
+    // 4️⃣ Kirim ke Google Sheets (silent)
+    await sendToGoogleSheets(gameData);
+
+    // 5️⃣ Delay dikit biar smooth (opsional)
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    // 6️⃣ Set loading false dan pindah ke celebration
+    setIsSubmitting(false);
     setCurrentPage("celebration");
   };
 
@@ -64,8 +121,7 @@ function App() {
   };
 
   const handleCelebrationNext = () => {
-    // Console log sudah ada di CelebrationPage
-    // Reset ke awal (welcome page)
+    // Langsung reset tanpa submit lagi (sudah submit di ActionPage)
     handleReset();
   };
 
@@ -95,8 +151,9 @@ function App() {
           playerName={playerName}
           spinType={spinType}
           currentQuestion={currentQuestion}
-          onComplete={handleActionComplete}
+          onComplete={handleActionComplete} // 🆕 Sekarang async
           onFail={handleActionFail}
+          isSubmitting={isSubmitting} // 🆕 Pass loading state
         />
       )}
       {currentPage === "celebration" && (
@@ -104,7 +161,7 @@ function App() {
           playerName={playerName}
           spinType={spinType}
           currentQuestion={currentQuestion}
-          onNextToSheets={handleCelebrationNext}
+          onNextToSheets={handleCelebrationNext} // Sekarang hanya reset
         />
       )}
 

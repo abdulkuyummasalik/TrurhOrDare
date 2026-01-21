@@ -56,17 +56,6 @@ function CelebrationPage({
   onNextToSheets,
 }) {
   useEffect(() => {
-    // Console log data
-    console.log("=== GAME DATA ===");
-    console.log({
-      playerName,
-      spinType,
-      currentQuestion,
-      timestamp: new Date().toISOString(),
-      status: "COMPLETED",
-    });
-    console.log("=================");
-
     // Create confetti elements - LEBIH BANYAK!
     const confettiContainer = document.createElement("div");
     confettiContainer.id = "confetti-container";
@@ -138,7 +127,7 @@ function CelebrationPage({
             onClick={onNextToSheets}
             className="w-full bg-white text-[#FF1493] text-base sm:text-lg font-bold py-3 px-6 hover:bg-[#50C878] hover:text-white transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg"
           >
-            Lanjut →
+            Kembali ke Awal →
           </button>
         </div>
       </div>

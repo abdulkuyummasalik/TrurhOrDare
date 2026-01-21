@@ -10,6 +10,7 @@ function ActionPage({
   currentQuestion,
   onComplete,
   onFail,
+  isSubmitting, // 🆕 Terima loading state dari App
 }) {
   const [timeLeft, setTimeLeft] = useState(30);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -84,29 +85,65 @@ function ActionPage({
       ) : (
         /* Confirmation View */
         <div className="flex-1 flex flex-col items-center justify-center py-2">
-          {/* Question Display */}
-          {/* <div className="w-full max-w-md bg-black text-white rounded-2xl p-3 sm:p-4 mb-6 shadow-xl">
-            <p className="text-center text-sm sm:text-base font-semibold">
-              Bagaimana hasilnya?
-            </p>
-          </div> */}
-
           {/* Action Buttons */}
           <div className="w-full max-w-md space-y-3 px-4">
             <button
               onClick={handleComplete}
-              className="w-full bg-white text-gray-800 text-lg sm:text-xl font-bold py-3 px-6 border-4 border-pink-200 hover:bg-pink-100 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg"
+              disabled={isSubmitting} // 🆕 Disable saat loading
+              className={`w-full text-lg sm:text-xl font-bold py-3 px-6 border-4 border-pink-200 transition-all duration-300 transform shadow-lg ${
+                isSubmitting
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-white text-gray-800 hover:bg-pink-100 hover:scale-105 active:scale-95"
+              }`}
             >
-              COMPLETE !
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg
+                    className="animate-spin h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  <span>Memproses...</span>
+                </span>
+              ) : (
+                "COMPLETE !"
+              )}
             </button>
 
             <button
               onClick={handleFail}
-              className="w-full bg-white text-gray-800 text-lg sm:text-xl font-bold py-3 px-6 border-4 border-pink-200 hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg"
+              disabled={isSubmitting} // 🆕 Disable saat loading
+              className={`w-full text-lg sm:text-xl font-bold py-3 px-6 border-4 border-pink-200 transition-all duration-300 transform shadow-lg ${
+                isSubmitting
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-gray-800 hover:bg-gray-100 hover:scale-105 active:scale-95"
+              }`}
             >
               tidak dilakukan.
             </button>
           </div>
+
+          {/* 🆕 Loading Indicator Text */}
+          {isSubmitting && (
+            <p className="text-white text-sm text-center mt-4 animate-pulse">
+              Menyimpan hasil permainan...
+            </p>
+          )}
         </div>
       )}
 
