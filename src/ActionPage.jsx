@@ -10,7 +10,7 @@ function ActionPage({
   currentQuestion,
   onComplete,
   onFail,
-  isSubmitting, // 🆕 Terima loading state dari App
+  isSubmitting,
 }) {
   const [timeLeft, setTimeLeft] = useState(30);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -26,7 +26,7 @@ function ActionPage({
     if (timeLeft === 0 && !showConfirmation) {
       setTimeout(() => {
         setShowConfirmation(true);
-      }, 500);
+      }, 3000);
     }
   }, [timeLeft, showConfirmation]);
 
@@ -51,26 +51,22 @@ function ActionPage({
   };
 
   return (
-    <div className="h-screen bg-[#FF1493] flex flex-col px-4 sm:px-6 lg:px-8 overflow-hidden relative">
+    <div className="h-screen bg-[#FF1493] flex flex-col px-4 sm:px-6 lg:px-8 overflow-hidden relative page-transition-enter">
       <Header
         title={showConfirmation ? "Bagaimana hasilnya?" : "Segera selesaikan!"}
       />
 
-      {/* Main Content */}
       {!showConfirmation ? (
-        /* Timer & GIF View */
-        <div className="flex-1 flex flex-col items-center justify-center py-2">
-          {/* Timer */}
+        <div className="flex-1 flex flex-col items-center justify-center py-2 animate-slideInUp">
           <div className="mb-4">
             <div
-              className={`text-5xl sm:text-6xl md:text-7xl font-bold ${getTimerColor()} transition-all duration-300`}
+              className={`text-5xl sm:text-6xl md:text-7xl font-bold ${getTimerColor()} smooth-transition`}
             >
               {formatTime(timeLeft)}
             </div>
           </div>
 
-          {/* GIF Display */}
-          <div className="mb-2 transition-all duration-500">
+          <div className="mb-2 smooth-transition">
             <img
               src={timeLeft > 0 ? CatRun : CatStop}
               alt="Cat Action"
@@ -78,22 +74,20 @@ function ActionPage({
             />
           </div>
 
-          <p className="text-sm sm:text-base text-white opacity-70 text-center">
+          <p className="text-sm sm:text-base text-white opacity-70 text-center animate-pulse-smooth">
             {timeLeft > 0 ? "Sedang berjalan..." : "Waktu habis!"}
           </p>
         </div>
       ) : (
-        /* Confirmation View */
-        <div className="flex-1 flex flex-col items-center justify-center py-2">
-          {/* Action Buttons */}
+        <div className="flex-1 flex flex-col items-center justify-center py-2 animate-scaleIn">
           <div className="w-full max-w-md space-y-3 px-4">
             <button
               onClick={handleComplete}
-              disabled={isSubmitting} // 🆕 Disable saat loading
-              className={`w-full text-lg sm:text-xl font-bold py-3 px-6 border-4 border-pink-200 transition-all duration-300 transform shadow-lg ${
+              disabled={isSubmitting}
+              className={`w-full text-lg sm:text-xl font-bold py-3 px-6 border-4 border-pink-200 rounded-lg smooth-bounce shadow-lg ${
                 isSubmitting
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-white text-gray-800 hover:bg-pink-100 hover:scale-105 active:scale-95"
+                  : "bg-white text-gray-800 hover:bg-pink-100 hover:scale-105 active:scale-95 btn-ripple"
               }`}
             >
               {isSubmitting ? (
@@ -127,8 +121,8 @@ function ActionPage({
 
             <button
               onClick={handleFail}
-              disabled={isSubmitting} // 🆕 Disable saat loading
-              className={`w-full text-lg sm:text-xl font-bold py-3 px-6 border-4 border-pink-200 transition-all duration-300 transform shadow-lg ${
+              disabled={isSubmitting}
+              className={`w-full text-lg sm:text-xl font-bold py-3 px-6 border-4 border-pink-200 rounded-lg smooth-transition shadow-lg ${
                 isSubmitting
                   ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                   : "bg-white text-gray-800 hover:bg-gray-100 hover:scale-105 active:scale-95"
@@ -138,7 +132,6 @@ function ActionPage({
             </button>
           </div>
 
-          {/* 🆕 Loading Indicator Text */}
           {isSubmitting && (
             <p className="text-white text-sm text-center mt-4 animate-pulse">
               Menyimpan hasil permainan...
