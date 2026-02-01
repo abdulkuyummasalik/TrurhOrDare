@@ -13,7 +13,7 @@ function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const GOOGLE_SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbzd-3l8ymcvjOjhD87XGWe3LJDNNE1PI4PYM6LiGuMdodruGaai3-bksDQOwA_TIK0E/exec";
+    "https://script.google.com/macros/s/AKfycbxwrzzOUmD-mO1-KcjPUmlGjTsUvtEIWehj29ORsrGZqJ-HhFLJL3fOYY7LOzbjRQin4g/exec";
 
   useEffect(() => {
     const savedName = localStorage.getItem("playerName");
@@ -59,41 +59,60 @@ function App() {
       const formData = new FormData();
       formData.append("playerName", data.playerName);
       formData.append("spinType", data.spinType);
-      formData.append("currentQuestion", data.currentQuestion);
+      formData.append("Question", data.currentQuestion);
+      formData.append("Answer", data.answer);
       formData.append("status", data.status);
+      formData.append("imageBase64", data.imageBase64);
 
-      await fetch(GOOGLE_SCRIPT_URL, {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         body: formData,
       });
 
+      const result = await response.json();
+      console.log("Google Sheets Response:", result);
+
       return true;
     } catch (error) {
+      console.error("Error sending to Google Sheets:", error);
       return true;
     }
   };
 
-  const handleActionComplete = async () => {
+  const handleActionSubmit = async (actionData) => {
     setIsSubmitting(true);
 
     const gameData = {
       playerName,
       spinType,
       currentQuestion,
-      status: "COMPLETED",
+      answer: actionData.answer,
+      imageBase64: actionData.imageBase64,
+      status: actionData.status,
     };
 
     await sendToGoogleSheets(gameData);
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
     setIsSubmitting(false);
-    setCurrentPage("celebration");
+
+    // Hanya ke celebration jika COMPLETED
+    if (actionData.status === "COMPLETED") {
+      setCurrentPage("celebration");
+    }
+    // Jika INCOMPLETE, modal akan muncul di ActionPage
   };
 
-  const handleActionFail = () => {
+  const handleActionRetry = () => {
+    // Kembali ke Spin1 (coba lagi)
     setSpinType("");
     setCurrentQuestion("");
     setCurrentPage("spin1");
+  };
+
+  const handleActionBackToHome = () => {
+    // Kembali ke Welcome (awal)
+    handleReset();
   };
 
   const handleCelebrationNext = () => {
@@ -126,8 +145,9 @@ function App() {
           playerName={playerName}
           spinType={spinType}
           currentQuestion={currentQuestion}
-          onComplete={handleActionComplete}
-          onFail={handleActionFail}
+          onSubmit={handleActionSubmit}
+          onRetry={handleActionRetry}
+          onBackToHome={handleActionBackToHome}
           isSubmitting={isSubmitting}
         />
       )}
